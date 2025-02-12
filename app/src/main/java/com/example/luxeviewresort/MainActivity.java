@@ -7,8 +7,9 @@ import com.example.luxeviewresort.activities.HomeActivity;
 import com.example.luxeviewresort.activities.LoginActivity;
 import com.example.luxeviewresort.utils.SessionManager;
 
-public class MainActivity extends AppCompatActivity {
 
+
+public class MainActivity extends AppCompatActivity {
     private SessionManager sessionManager;
 
     @Override
@@ -17,13 +18,16 @@ public class MainActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        // Check if user is logged in
+        // Check login status and navigate accordingly
+        Intent intent;
         if (sessionManager.isLoggedIn()) {
-            startActivity(new Intent(MainActivity.this, HomeActivity.class)); // Navigate to Home
+            intent = new Intent(MainActivity.this, HomeActivity.class);
         } else {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class)); // Navigate to Login
+            intent = new Intent(MainActivity.this, LoginActivity.class);
         }
 
-        finish(); // Close MainActivity so user can't go back to it
+        // Add flags to clear back stack
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

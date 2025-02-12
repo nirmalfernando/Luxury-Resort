@@ -52,20 +52,19 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
         rvServices.setAdapter(serviceAdapter);
 
         // Handle Bottom Navigation Clicks
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull android.view.MenuItem item) {
-                if (item.getItemId() == R.id.nav_profile) {
-                    startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
-                    return true;
-                } else if (item.getItemId() == R.id.nav_bookings) {
-                    startActivity(new Intent(HomeActivity.this, RoomBookingActivity.class));
-                    return true;
-                } else if (item.getItemId() == R.id.nav_home) {
-                    return true; // Stay on Home
-                }
-                return false;
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                // Already on home, do nothing
+                return true;
+            } else if (itemId == R.id.nav_bookings) {
+                startActivity(new Intent(this, RoomBookingActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                return true;
             }
+            return false;
         });
     }
 
