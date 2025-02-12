@@ -15,7 +15,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "LuxeVista.db";
-    private static final int DATABASE_VERSION = 3; // Increment version when modifying DB schema
+    private static final int DATABASE_VERSION = 5; // Increment version when modifying DB schema
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -53,13 +53,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVATIONS);
-            String createReservationsTable = "CREATE TABLE " + TABLE_RESERVATIONS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, service_id INTEGER, date TEXT, time TEXT, " +
-                    "FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE, " +
-                    "FOREIGN KEY(service_id) REFERENCES services(id) ON DELETE CASCADE)";
-            db.execSQL(createReservationsTable);
-        }
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVATIONS);
+
+        onCreate(db); // Recreate tables
     }
 
     // Insert User
