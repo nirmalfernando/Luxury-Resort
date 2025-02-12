@@ -117,6 +117,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return roomList;
     }
 
+    // Get Room by ID
+    public Room getRoomById(int roomId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ROOMS + " WHERE id=?", new String[]{String.valueOf(roomId)});
+
+        if (cursor.moveToFirst()) {
+            Room room = new Room(cursor.getInt(0), cursor.getString(1), cursor.getDouble(2));
+            cursor.close();
+            return room;
+        }
+        cursor.close();
+        return null;
+    }
+
+
     // Book a Room
     public boolean bookRoom(int userId, int roomId) {
         SQLiteDatabase db = this.getWritableDatabase();

@@ -14,7 +14,7 @@ import com.example.luxeviewresort.models.Room;
 import com.example.luxeviewresort.utils.SessionManager;
 import java.util.List;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements RoomAdapter.OnRoomClickListener {
 
     private TextView tvUserName, tvUserEmail;
     private RecyclerView rvBookings;
@@ -28,6 +28,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        // Initialize UI Components
         tvUserName = findViewById(R.id.tvUserName);
         tvUserEmail = findViewById(R.id.tvUserEmail);
         rvBookings = findViewById(R.id.rvBookings);
@@ -44,16 +45,26 @@ public class ProfileActivity extends AppCompatActivity {
             tvUserName.setText(userName);
             tvUserEmail.setText(userEmail);
 
+            // Load User's Booked Rooms
             List<Room> bookings = databaseHelper.getUserBookings(userId);
-            roomAdapter = new RoomAdapter(this, bookings);
+            roomAdapter = new RoomAdapter(this, bookings, this);
             rvBookings.setLayoutManager(new LinearLayoutManager(this));
             rvBookings.setAdapter(roomAdapter);
         }
 
+        // Logout Button Click
         btnLogout.setOnClickListener(v -> {
             sessionManager.setLogin(false);
             startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
             finish();
         });
+    }
+
+    // Handle Room Clicks
+    @Override
+    public void onRoomClick(int roomId) {
+        Intent intent = new Intent(ProfileActivity.this, RoomDetailsActivity.class);
+        intent.putExtra("room_id", roomId);
+        startActivity(intent);
     }
 }

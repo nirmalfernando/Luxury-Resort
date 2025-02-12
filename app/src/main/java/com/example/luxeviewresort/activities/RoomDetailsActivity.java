@@ -23,7 +23,7 @@ public class RoomDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_room_details);
+        setContentView(R.layout.activity_rooms_details);
 
         tvRoomTitle = findViewById(R.id.roomTitle);
         tvRoomPrice = findViewById(R.id.roomPrice);
