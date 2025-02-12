@@ -15,12 +15,20 @@
         android:textColor="@color/black"
         android:layout_marginBottom="10dp"/>
 
+    <!-- RecyclerView for Rooms -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategories"
+        android:id="@+id/rvRooms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- RecyclerView for Services -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvServices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"/>
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"

@@ -2,6 +2,8 @@ package com.example.luxeviewresort.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
+import java.nio.charset.StandardCharsets;
 
 public class SessionManager {
     private static final String PREF_NAME = "LuxeVistaSession";
@@ -9,7 +11,10 @@ public class SessionManager {
     private static final String KEY_USER_ID = "USER_ID";
     private static final String KEY_USER_NAME = "USER_NAME";
     private static final String KEY_USER_EMAIL = "USER_EMAIL";
-    private static final String KEY_USER_ROLE = "USER_ROLE"; // New: To store Admin/User role
+    private static final String KEY_USER_ROLE = "USER_ROLE"; // "admin" or "user"
+    private static final String KEY_SESSION_EXPIRY = "SESSION_EXPIRY"; // New: Session Expiry
+
+    private static final long SESSION_DURATION = 86400000; // 24 hours in milliseconds
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -19,23 +24,34 @@ public class SessionManager {
         editor = sharedPreferences.edit();
     }
 
-    // Set login status
+    // Set login status with session expiry
     public void setLogin(boolean isLoggedIn) {
         editor.putBoolean(KEY_IS_LOGGED_IN, isLoggedIn);
+        if (isLoggedIn) {
+            editor.putLong(KEY_SESSION_EXPIRY, System.currentTimeMillis() + SESSION_DURATION);
+        } else {
+            editor.remove(KEY_SESSION_EXPIRY);
+        }
         editor.apply();
     }
 
-    // Check if user is logged in
+    // Check if user is logged in and session is active
     public boolean isLoggedIn() {
+        long expiryTime = sharedPreferences.getLong(KEY_SESSION_EXPIRY, 0);
+        if (System.currentTimeMillis() > expiryTime) {
+            logout(); // Auto logout if session expired
+            return false;
+        }
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
     }
 
-    // Save user details
+    // Save user details securely (Base64 encoding)
     public void saveUserDetails(int userId, String name, String email, String role) {
         editor.putInt(KEY_USER_ID, userId);
-        editor.putString(KEY_USER_NAME, name);
-        editor.putString(KEY_USER_EMAIL, email);
-        editor.putString(KEY_USER_ROLE, role); // Save user role
+        editor.putString(KEY_USER_NAME, encode(name));
+        editor.putString(KEY_USER_EMAIL, encode(email));
+        editor.putString(KEY_USER_ROLE, role);
+        editor.putLong(KEY_SESSION_EXPIRY, System.currentTimeMillis() + SESSION_DURATION);
         editor.apply();
     }
 
@@ -44,14 +60,14 @@ public class SessionManager {
         return sharedPreferences.getInt(KEY_USER_ID, -1);
     }
 
-    // Get User Name
+    // Get User Name (Decoded)
     public String getUserName() {
-        return sharedPreferences.getString(KEY_USER_NAME, "");
+        return decode(sharedPreferences.getString(KEY_USER_NAME, ""));
     }
 
-    // Get User Email
+    // Get User Email (Decoded)
     public String getUserEmail() {
-        return sharedPreferences.getString(KEY_USER_EMAIL, "");
+        return decode(sharedPreferences.getString(KEY_USER_EMAIL, ""));
     }
 
     // Get User Role
@@ -68,5 +84,15 @@ public class SessionManager {
     public void logout() {
         editor.clear();
         editor.apply();
+    }
+
+    // Encode sensitive data to Base64
+    private String encode(String data) {
+        return Base64.encodeToString(data.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+    }
+
+    // Decode Base64 encoded data
+    private String decode(String data) {
+        return new String(Base64.decode(data, Base64.NO_WRAP), StandardCharsets.UTF_8);
     }
 }

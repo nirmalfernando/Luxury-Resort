@@ -2,8 +2,7 @@ package com.example.luxeviewresort.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +13,8 @@ import com.example.luxeviewresort.database.DatabaseHelper;
 import com.example.luxeviewresort.models.Room;
 import com.example.luxeviewresort.models.Service;
 import com.example.luxeviewresort.utils.SessionManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoomClickListener, ServiceAdapter.OnServiceClickListener {
@@ -22,8 +23,8 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
     private RoomAdapter roomAdapter;
     private ServiceAdapter serviceAdapter;
     private DatabaseHelper databaseHelper;
-    private Button btnProfile, btnLogout;
     private SessionManager sessionManager;
+    private BottomNavigationView bottomNavigationView; // ✅ Use BottomNavigationView instead of Button
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,32 +34,38 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
         // Initialize UI Components
         rvRooms = findViewById(R.id.rvRooms);
         rvServices = findViewById(R.id.rvServices);
-        btnProfile = findViewById(R.id.nav_profile);
-        btnLogout = findViewById(R.id.btnLogout);
+        bottomNavigationView = findViewById(R.id.bottomNavigation); // ✅ Corrected
 
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
 
         // Load Rooms
         List<Room> rooms = databaseHelper.getAllRooms();
-        roomAdapter = new RoomAdapter(this, rooms, this);  // ✅ Pass 'this' as Room Click Listener
+        roomAdapter = new RoomAdapter(this, rooms, this);
         rvRooms.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvRooms.setAdapter(roomAdapter);
 
         // Load Services
         List<Service> services = databaseHelper.getAllServices();
-        serviceAdapter = new ServiceAdapter(this, services, this); // ✅ Pass 'this' as Service Click Listener
+        serviceAdapter = new ServiceAdapter(this, services, this);
         rvServices.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvServices.setAdapter(serviceAdapter);
 
-        // Profile Button Click
-        btnProfile.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
-
-        // Logout Button Click
-        btnLogout.setOnClickListener(v -> {
-            sessionManager.setLogin(false);
-            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
-            finish();
+        // Handle Bottom Navigation Clicks
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull android.view.MenuItem item) {
+                if (item.getItemId() == R.id.nav_profile) {
+                    startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+                    return true;
+                } else if (item.getItemId() == R.id.nav_bookings) {
+                    startActivity(new Intent(HomeActivity.this, RoomBookingActivity.class));
+                    return true;
+                } else if (item.getItemId() == R.id.nav_home) {
+                    return true; // Stay on Home
+                }
+                return false;
+            }
         });
     }
 
