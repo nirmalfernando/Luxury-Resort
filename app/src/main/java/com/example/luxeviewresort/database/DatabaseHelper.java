@@ -15,7 +15,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "LuxeVista.db";
-    private static final int DATABASE_VERSION = 2; // Increment version when modifying DB schema
+    private static final int DATABASE_VERSION = 3; // Increment version when modifying DB schema
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -46,6 +46,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createServicesTable);
         db.execSQL(createBookingsTable);
         db.execSQL(createReservationsTable);
+
+        populateRooms(db);
+        populateServices(db);
     }
 
     @Override
@@ -89,6 +92,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return userId;
+    }
+
+    // Populate Default Rooms
+    private void populateRooms(SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_ROOMS, null);
+        if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
+            ContentValues values = new ContentValues();
+
+            values.put("name", "Deluxe Ocean View");
+            values.put("price", 200);
+            values.put("image", "room1.jpg");
+            db.insert(TABLE_ROOMS, null, values);
+
+            values.clear();
+            values.put("name", "Mountain Retreat");
+            values.put("price", 180);
+            values.put("image", "room2.jpg");
+            db.insert(TABLE_ROOMS, null, values);
+        }
+        cursor.close();
+    }
+
+    // Populate Default Services
+    private void populateServices(SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_SERVICES, null);
+        if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
+            ContentValues values = new ContentValues();
+
+            values.put("name", "Spa Treatment");
+            values.put("price", 50);
+            db.insert(TABLE_SERVICES, null, values);
+
+            values.clear();
+            values.put("name", "Private Dining");
+            values.put("price", 80);
+            db.insert(TABLE_SERVICES, null, values);
+        }
+        cursor.close();
     }
 
     // Insert a Room
