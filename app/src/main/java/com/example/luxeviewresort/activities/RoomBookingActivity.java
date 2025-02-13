@@ -3,7 +3,9 @@ package com.example.luxeviewresort.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.luxeviewresort.R;
@@ -20,6 +22,7 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
     private DatabaseHelper databaseHelper;
     private RoomAdapter roomAdapter;
     private BottomNavigationView bottomNavigationView;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +31,16 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
 
         rvRooms = findViewById(R.id.rvAvailableRooms);
         databaseHelper = new DatabaseHelper(this);
+        toolbar = findViewById(R.id.toolbar);
 //        bottomNavigationView = findViewById(R.id.bottomNavigation);
+
+        // Handle back button click
+        toolbar.setNavigationOnClickListener(v -> {
+            Intent intent = new Intent(RoomBookingActivity.this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish(); // Optional: Close the current activity
+        });
 
         List<Room> roomList = databaseHelper.getAllRooms2();
         if (roomList.isEmpty()) {

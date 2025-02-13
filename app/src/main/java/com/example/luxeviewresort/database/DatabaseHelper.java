@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.luxeviewresort.R;
 import com.example.luxeviewresort.models.Room;
 import com.example.luxeviewresort.models.Service;
 
@@ -20,7 +21,8 @@ import android.util.Pair;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "LuxeVista.db";
-    private static final int DATABASE_VERSION = 6; // Increment version when modifying DB schema
+    private static final int DATABASE_VERSION = 8; // Increment version when modifying DB schema
+    private final Context context;
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -29,8 +31,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_BOOKINGS = "bookings";
     private static final String TABLE_RESERVATIONS = "reservations";
 
+    // Maximum image dimensions to prevent memory issues
+    private static final int MAX_IMAGE_DIMENSION = 800;
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -66,6 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         onCreate(db); // Recreate tables
     }
+
 
     // Insert User
     public boolean insertUser(String name, String email, String password) {
@@ -103,12 +110,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return user;  // Returns null if no user is found
     }
 
+    // Helper method to resize bitmap
+    private Bitmap resizeBitmap(Bitmap bitmap) {
+        if (bitmap == null) return null;
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // Calculate new dimensions while maintaining aspect ratio
+        float scale = Math.min(
+                (float) MAX_IMAGE_DIMENSION / width,
+                (float) MAX_IMAGE_DIMENSION / height
+        );
+
+        // Only resize if the image is larger than our maximum dimension
+        if (scale < 1) {
+            int newWidth = Math.round(width * scale);
+            int newHeight = Math.round(height * scale);
+            return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+        }
+
+        return bitmap;
+    }
+
     // Convert Bitmap to Byte Array
     private byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        if (bitmap == null) return null;
+
+        // Resize bitmap if necessary
+        Bitmap resizedBitmap = resizeBitmap(bitmap);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+
+        // Compress with lower quality to reduce size
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
+
+        // Recycle the resized bitmap if it's different from the original
+        if (resizedBitmap != bitmap) {
+            resizedBitmap.recycle();
+        }
+
         return outputStream.toByteArray();
     }
+
 
     // Convert Byte Array to Bitmap
     private Bitmap getByteArrayAsBitmap(byte[] imageData) {
@@ -121,19 +164,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
             ContentValues values = new ContentValues();
 
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.room1);
+            byte[] imageBytes = getBitmapAsByteArray(bitmap);
+
             values.put("name", "Deluxe Ocean View");
             values.put("price", 200);
-            values.put("image", "C:\\Users\\User\\Downloads\\Freelance\\LuxeViewResort\\app\\src\\main\\res\\drawable\\room1.jpg");
+            values.put("image", imageBytes); // Store as BLOB
             db.insert(TABLE_ROOMS, null, values);
 
             values.clear();
             values.put("name", "Mountain Retreat");
             values.put("price", 180);
-            values.put("image", "C:\\Users\\User\\Downloads\\Freelance\\LuxeViewResort\\app\\src\\main\\res\\drawable\\room1.jpg");
+            values.put("image", imageBytes); // Store as BLOB
             db.insert(TABLE_ROOMS, null, values);
         }
         cursor.close();
     }
+
 
     // Populate Default Services
     private void populateServices(SQLiteDatabase db) {
@@ -185,21 +232,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<Room> getAllRooms2() {
         List<Room> roomList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ROOMS, null);
 
+        // Use a transaction to ensure data consistency
+        db.beginTransaction();
+        try {
+            // Query rooms without the image first
+            Cursor cursor = db.query(TABLE_ROOMS,
+                    new String[]{"id", "name", "price"},
+                    null, null, null, null, null);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(0);
+                    String name = cursor.getString(1);
+                    double price = cursor.getDouble(2);
+
+                    // Get image in a separate query
+                    Bitmap image = getRoomImage(db, id);
+
+                    roomList.add(new Room(id, name, price, image));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return roomList;
+    }
+
+    // Helper method to get room image separately
+    private Bitmap getRoomImage(SQLiteDatabase db, int roomId) {
+        Cursor cursor = db.query(TABLE_ROOMS,
+                new String[]{"image"},
+                "id = ?",
+                new String[]{String.valueOf(roomId)},
+                null, null, null);
+
+        Bitmap image = null;
         if (cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(0);
-                String name = cursor.getString(1);
-                double price = cursor.getDouble(2);
-                byte[] imageBytes = cursor.getBlob(3);
-                Bitmap image = getByteArrayAsBitmap(imageBytes);
-
-                roomList.add(new Room(id, name, price, image));
-            } while (cursor.moveToNext());
+            byte[] imageBytes = cursor.getBlob(0);
+            if (imageBytes != null) {
+                image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            }
         }
         cursor.close();
-        return roomList;
+        return image;
     }
 
     // Get Room by ID
