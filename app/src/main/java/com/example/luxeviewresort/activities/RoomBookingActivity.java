@@ -32,7 +32,7 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
         rvRooms = findViewById(R.id.rvAvailableRooms);
         databaseHelper = new DatabaseHelper(this);
         toolbar = findViewById(R.id.toolbar);
-//        bottomNavigationView = findViewById(R.id.bottomNavigation);
+        bottomNavigationView = findViewById(R.id.bottomNavigation);
 
         // Handle back button click
         toolbar.setNavigationOnClickListener(v -> {
@@ -52,19 +52,19 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
         }
 
         // Handle Bottom Navigation Clicks
-//        bottomNavigationView.setOnItemSelectedListener(item -> {
-//            int itemId = item.getItemId();
-//            if (itemId == R.id.nav_home) {
-//                startActivity(new Intent(this, HomeActivity.class));
-//                return true;
-//            } else if (itemId == R.id.nav_bookings) {
-//                return true;
-//            } else if (itemId == R.id.nav_profile) {
-//                startActivity(new Intent(this, ProfileActivity.class));
-//                return true;
-//            }
-//            return false;
-//        });
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(this, HomeActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_bookings) {
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override
