@@ -3,6 +3,8 @@ package com.example.luxeviewresort.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -44,6 +46,10 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             if (databaseHelper.checkUser(email, password)) {
+                Pair<Integer, String> user = databaseHelper.getUserIdAndName(email);
+
+                sessionManager.saveUserDetails(user.first,user.second,email);
+                Log.d("Login User Data", "User Details:  " +user);
                 sessionManager.setLogin(true);
                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

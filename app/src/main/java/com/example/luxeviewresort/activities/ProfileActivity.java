@@ -12,6 +12,8 @@ import com.example.luxeviewresort.adapters.RoomAdapter;
 import com.example.luxeviewresort.database.DatabaseHelper;
 import com.example.luxeviewresort.models.Room;
 import com.example.luxeviewresort.utils.SessionManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity implements RoomAdapter.OnRoomClickListener {
@@ -22,6 +24,7 @@ public class ProfileActivity extends AppCompatActivity implements RoomAdapter.On
     private DatabaseHelper databaseHelper;
     private SessionManager sessionManager;
     private Button btnLogout;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class ProfileActivity extends AppCompatActivity implements RoomAdapter.On
         tvUserEmail = findViewById(R.id.tvUserEmail);
         rvBookings = findViewById(R.id.rvBookings);
         btnLogout = findViewById(R.id.btnLogout);
+        bottomNavigationView = findViewById(R.id.bottomNavigation);
 
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
@@ -57,6 +61,21 @@ public class ProfileActivity extends AppCompatActivity implements RoomAdapter.On
             sessionManager.setLogin(false);
             startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
             finish();
+        });
+
+        // Handle Bottom Navigation Clicks
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(this, HomeActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_bookings) {
+                startActivity(new Intent(this, RoomBookingActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                return true;
+            }
+            return false;
         });
     }
 

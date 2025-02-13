@@ -9,13 +9,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.example.luxeviewresort.models.Room;
 import com.example.luxeviewresort.models.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Pair;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "LuxeVista.db";
-    private static final int DATABASE_VERSION = 5; // Increment version when modifying DB schema
+    private static final int DATABASE_VERSION = 6; // Increment version when modifying DB schema
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -31,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createUserTable = "CREATE TABLE " + TABLE_USERS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT UNIQUE, password TEXT)";
-        String createRoomsTable = "CREATE TABLE " + TABLE_ROOMS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, image TEXT)";
+        String createRoomsTable = "CREATE TABLE " + TABLE_ROOMS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, image BLOB)";
         String createServicesTable = "CREATE TABLE " + TABLE_SERVICES + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL)";
         String createBookingsTable = "CREATE TABLE " + TABLE_BOOKINGS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, room_id INTEGER, " +
                 "FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE, " +
@@ -82,16 +87,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return exists;
     }
 
-    // Get User ID by Email
-    public int getUserId(String email) {
+    // Get User Details by Email
+    public Pair<Integer, String> getUserIdAndName(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id FROM " + TABLE_USERS + " WHERE email=?", new String[]{email});
-        int userId = -1;
+        Cursor cursor = db.rawQuery("SELECT id, name FROM " + TABLE_USERS + " WHERE email=?", new String[]{email});
+        Pair<Integer, String> user = null;
+
         if (cursor.moveToFirst()) {
-            userId = cursor.getInt(0);
+            int userId = cursor.getInt(0);
+            String name = cursor.getString(1);
+            user = new Pair<>(userId, name);
         }
+
         cursor.close();
-        return userId;
+        return user;  // Returns null if no user is found
+    }
+
+    // Convert Bitmap to Byte Array
+    private byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    // Convert Byte Array to Bitmap
+    private Bitmap getByteArrayAsBitmap(byte[] imageData) {
+        return BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
     }
 
     // Populate Default Rooms
@@ -102,13 +123,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             values.put("name", "Deluxe Ocean View");
             values.put("price", 200);
-            values.put("image", "room1.jpg");
+            values.put("image", "C:\\Users\\User\\Downloads\\Freelance\\LuxeViewResort\\app\\src\\main\\res\\drawable\\room1.jpg");
             db.insert(TABLE_ROOMS, null, values);
 
             values.clear();
             values.put("name", "Mountain Retreat");
             values.put("price", 180);
-            values.put("image", "room2.jpg");
+            values.put("image", "C:\\Users\\User\\Downloads\\Freelance\\LuxeViewResort\\app\\src\\main\\res\\drawable\\room1.jpg");
             db.insert(TABLE_ROOMS, null, values);
         }
         cursor.close();
@@ -133,12 +154,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Insert a Room
-    public boolean insertRoom(String name, double price, String image) {
+    public boolean insertRoom(String name, double price, Bitmap image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+
         values.put("name", name);
         values.put("price", price);
-        values.put("image", image);
+        values.put("image", getBitmapAsByteArray(image)); // Convert and insert as BLOB
+
         long result = db.insert(TABLE_ROOMS, null, values);
         return result != -1;
     }
@@ -152,6 +175,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 roomList.add(new Room(cursor.getInt(0), cursor.getString(1), cursor.getDouble(2)));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return roomList;
+    }
+
+    // Get All Rooms
+    public List<Room> getAllRooms2() {
+        List<Room> roomList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ROOMS, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String name = cursor.getString(1);
+                double price = cursor.getDouble(2);
+                byte[] imageBytes = cursor.getBlob(3);
+                Bitmap image = getByteArrayAsBitmap(imageBytes);
+
+                roomList.add(new Room(id, name, price, image));
             } while (cursor.moveToNext());
         }
         cursor.close();

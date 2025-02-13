@@ -10,6 +10,8 @@ import com.example.luxeviewresort.R;
 import com.example.luxeviewresort.adapters.RoomAdapter;
 import com.example.luxeviewresort.database.DatabaseHelper;
 import com.example.luxeviewresort.models.Room;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.List;
 
 public class RoomBookingActivity extends AppCompatActivity implements RoomAdapter.OnRoomClickListener {
@@ -17,16 +19,18 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
     private RecyclerView rvRooms;
     private DatabaseHelper databaseHelper;
     private RoomAdapter roomAdapter;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_booking);
 
-        rvRooms = findViewById(R.id.rvRooms);
+        rvRooms = findViewById(R.id.rvAvailableRooms);
         databaseHelper = new DatabaseHelper(this);
+//        bottomNavigationView = findViewById(R.id.bottomNavigation);
 
-        List<Room> roomList = databaseHelper.getAllRooms();
+        List<Room> roomList = databaseHelper.getAllRooms2();
         if (roomList.isEmpty()) {
             Toast.makeText(this, "No rooms available", Toast.LENGTH_SHORT).show();
         } else {
@@ -34,6 +38,21 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
             rvRooms.setLayoutManager(new LinearLayoutManager(this));
             rvRooms.setAdapter(roomAdapter);
         }
+
+        // Handle Bottom Navigation Clicks
+//        bottomNavigationView.setOnItemSelectedListener(item -> {
+//            int itemId = item.getItemId();
+//            if (itemId == R.id.nav_home) {
+//                startActivity(new Intent(this, HomeActivity.class));
+//                return true;
+//            } else if (itemId == R.id.nav_bookings) {
+//                return true;
+//            } else if (itemId == R.id.nav_profile) {
+//                startActivity(new Intent(this, ProfileActivity.class));
+//                return true;
+//            }
+//            return false;
+//        });
     }
 
     @Override

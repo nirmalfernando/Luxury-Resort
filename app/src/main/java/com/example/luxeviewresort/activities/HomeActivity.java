@@ -2,6 +2,8 @@ package com.example.luxeviewresort.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,7 +26,7 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
     private ServiceAdapter serviceAdapter;
     private DatabaseHelper databaseHelper;
     private SessionManager sessionManager;
-    private BottomNavigationView bottomNavigationView; // ✅ Use BottomNavigationView instead of Button
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +36,16 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
         // Initialize UI Components
         rvRooms = findViewById(R.id.rvRooms);
         rvServices = findViewById(R.id.rvServices);
-        bottomNavigationView = findViewById(R.id.bottomNavigation); // ✅ Corrected
+        bottomNavigationView = findViewById(R.id.bottomNavigation);
 
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
 
+        int userId = sessionManager.getUserId();
+        Log.d("Home Activity UserId", "UserId: " +userId);
+
         // Load Rooms
-        List<Room> rooms = databaseHelper.getAllRooms();
+        List<Room> rooms = databaseHelper.getAllRooms2();
         roomAdapter = new RoomAdapter(this, rooms, this);
         rvRooms.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvRooms.setAdapter(roomAdapter);
@@ -55,7 +60,6 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                // Already on home, do nothing
                 return true;
             } else if (itemId == R.id.nav_bookings) {
                 startActivity(new Intent(this, RoomBookingActivity.class));

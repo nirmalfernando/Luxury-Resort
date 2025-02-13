@@ -46,12 +46,17 @@ public class SessionManager {
     }
 
     // Save user details securely (Base64 encoding)
-    public void saveUserDetails(int userId, String name, String email, String role) {
+    public void saveUserDetails(int userId, String name, String email) {
         editor.putInt(KEY_USER_ID, userId);
         editor.putString(KEY_USER_NAME, encode(name));
         editor.putString(KEY_USER_EMAIL, encode(email));
-        editor.putString(KEY_USER_ROLE, role);
         editor.putLong(KEY_SESSION_EXPIRY, System.currentTimeMillis() + SESSION_DURATION);
+        editor.apply();
+    }
+
+    // Save user by email
+    public void saveUserEmail (String email) {
+        editor.putString(KEY_USER_EMAIL, encode(email));
         editor.apply();
     }
 

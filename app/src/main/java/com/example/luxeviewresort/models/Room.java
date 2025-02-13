@@ -1,13 +1,15 @@
 package com.example.luxeviewresort.models;
 
+import android.graphics.Bitmap;
+
 public class Room {
     private int id;
     private String name;
     private double price;
-    private String image; // Added Image Field
+    private Bitmap image; // Change from String to Bitmap
 
     // Constructor with Image
-    public Room(int id, String name, double price, String image) {
+    public Room(int id, String name, double price, Bitmap image) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -19,7 +21,7 @@ public class Room {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.image = ""; // Default empty image
+        this.image = null; // Default null image
     }
 
     // Getters
@@ -35,12 +37,12 @@ public class Room {
         return price;
     }
 
-    public String getImage() {
+    public Bitmap getImage() { // Change return type from String to Bitmap
         return image;
     }
 
-    // Setters
-    public void setImage(String image) {
+    // Setter
+    public void setImage(Bitmap image) {
         this.image = image;
     }
 }
