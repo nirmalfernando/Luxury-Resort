@@ -2,9 +2,11 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:fitsSystemWindows="true">
 
     <!-- App Bar with Back Button -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -22,7 +24,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_marginBottom="56dp"> <!-- Ensures RecyclerView doesn't overlap bottom nav -->
 
         <!-- Title -->
         <TextView
@@ -42,7 +44,7 @@
             android:layout_weight="1"
             android:scrollbars="vertical"/>
 
-        <!-- Floating Action Button for Booking (Optional) -->
+        <!-- Floating Action Button for Booking -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabBookRoom"
             android:layout_width="wrap_content"
@@ -53,4 +55,12 @@
             android:contentDescription="Book Room"
             app:backgroundTint="@color/primary"/>
     </LinearLayout>
+
+    <!-- Bottom Navigation Bar (Sticks to Bottom) -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:menu="@menu/bottom_nav_menu"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
