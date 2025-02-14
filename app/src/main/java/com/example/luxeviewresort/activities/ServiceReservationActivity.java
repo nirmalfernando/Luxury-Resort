@@ -2,6 +2,7 @@ package com.example.luxeviewresort.activities;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.luxeviewresort.R;
@@ -32,6 +34,7 @@ public class ServiceReservationActivity extends AppCompatActivity implements Ser
     private EditText etSelectedDate, etSelectedTime;
     private Button btnConfirmBooking;
     private int selectedServiceId;
+    private Toolbar toolbar;
 
     // Date formatting
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -49,6 +52,14 @@ public class ServiceReservationActivity extends AppCompatActivity implements Ser
         setupDatabase();
         loadServices();
         setupListeners();
+
+        // Handle back button click
+        toolbar.setNavigationOnClickListener(v -> {
+            Intent intent = new Intent(ServiceReservationActivity.this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish(); // Optional: Close the current activity
+        });
     }
 
     private void initializeViews() {
@@ -56,6 +67,7 @@ public class ServiceReservationActivity extends AppCompatActivity implements Ser
         etSelectedDate = findViewById(R.id.etSelectedDate);
         etSelectedTime = findViewById(R.id.etSelectedTime);
         btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
+        toolbar = findViewById(R.id.toolbar);
 
         // Make EditTexts non-editable
         etSelectedDate.setFocusable(false);
