@@ -1,9 +1,11 @@
 package com.example.luxeviewresort.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,7 @@ public class RoomDetailsActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private SessionManager sessionManager;
     private int roomId;
+    private ImageView roomImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class RoomDetailsActivity extends AppCompatActivity {
         tvRoomPrice = findViewById(R.id.roomPrice);
         tvRoomDescription = findViewById(R.id.roomDescription);
         btnBookRoom = findViewById(R.id.btnBookRoom);
+        roomImage = findViewById(R.id.roomImage);
 
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
@@ -41,6 +45,14 @@ public class RoomDetailsActivity extends AppCompatActivity {
             tvRoomTitle.setText(room.getName());
             tvRoomPrice.setText("$" + room.getPrice() + " per night");
             tvRoomDescription.setText("This luxurious suite includes all modern amenities.");
+
+            // Load image
+            Bitmap imageBitmap = room.getImage();
+            if (imageBitmap != null) {
+                roomImage.setImageBitmap(imageBitmap);
+            } else {
+                roomImage.setImageResource(R.drawable.room1); // Set default placeholder
+            }
         }
 
         btnBookRoom.setOnClickListener(v -> {
