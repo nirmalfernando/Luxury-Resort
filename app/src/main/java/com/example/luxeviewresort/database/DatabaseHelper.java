@@ -21,7 +21,7 @@ import android.util.Pair;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "LuxeVista.db";
-    private static final int DATABASE_VERSION = 8; // Increment version when modifying DB schema
+    private static final int DATABASE_VERSION = 10; // Increment version when modifying DB schema
     private final Context context;
 
     // Table Names
@@ -164,23 +164,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
             ContentValues values = new ContentValues();
 
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.room1);
-            byte[] imageBytes = getBitmapAsByteArray(bitmap);
+            // Load different images for each room
+            Bitmap bitmap1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.room1);
+            byte[] imageBytes1 = getBitmapAsByteArray(bitmap1);
+
+            Bitmap bitmap2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.room2);
+            byte[] imageBytes2 = getBitmapAsByteArray(bitmap2);
+
+            Bitmap bitmap3 = BitmapFactory.decodeResource(context.getResources(), R.drawable.room3);
+            byte[] imageBytes3 = getBitmapAsByteArray(bitmap3);
+
+            Bitmap bitmap4 = BitmapFactory.decodeResource(context.getResources(), R.drawable.room4);
+            byte[] imageBytes4 = getBitmapAsByteArray(bitmap4);
+
+            Bitmap bitmap5 = BitmapFactory.decodeResource(context.getResources(), R.drawable.room5);
+            byte[] imageBytes5 = getBitmapAsByteArray(bitmap5);
 
             values.put("name", "Deluxe Ocean View");
             values.put("price", 200);
-            values.put("image", imageBytes); // Store as BLOB
+            values.put("image", imageBytes1);
             db.insert(TABLE_ROOMS, null, values);
 
             values.clear();
             values.put("name", "Mountain Retreat");
             values.put("price", 180);
-            values.put("image", imageBytes); // Store as BLOB
+            values.put("image", imageBytes2);
+            db.insert(TABLE_ROOMS, null, values);
+
+            values.clear();
+            values.put("name", "Garden Paradise");
+            values.put("price", 190);
+            values.put("image", imageBytes3);
+            db.insert(TABLE_ROOMS, null, values);
+
+            values.clear();
+            values.put("name", "Luxury Penthouse");
+            values.put("price", 350);
+            values.put("image", imageBytes4);
+            db.insert(TABLE_ROOMS, null, values);
+
+            values.clear();
+            values.put("name", "Cozy Cabin");
+            values.put("price", 160);
+            values.put("image", imageBytes5);
             db.insert(TABLE_ROOMS, null, values);
         }
         cursor.close();
     }
-
 
     // Populate Default Services
     private void populateServices(SQLiteDatabase db) {
@@ -195,6 +225,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.clear();
             values.put("name", "Private Dining");
             values.put("price", 80);
+            db.insert(TABLE_SERVICES, null, values);
+
+            values.clear();
+            values.put("name", "Reserve In-House Services");
+            values.put("price", 100);
+            db.insert(TABLE_SERVICES, null, values);
+
+            values.clear();
+            values.put("name", "Poolside Cabanas");
+            values.put("price", 120);
+            db.insert(TABLE_SERVICES, null, values);
+
+            values.clear();
+            values.put("name", "Guided Beach Tours");
+            values.put("price", 150);
             db.insert(TABLE_SERVICES, null, values);
         }
         cursor.close();
