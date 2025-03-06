@@ -4,23 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.luxeviewresort.R;
-import com.example.luxeviewresort.adapters.RoomAdapter;
+import com.example.luxeviewresort.adapters.BookingsAdapter;
 import com.example.luxeviewresort.database.DatabaseHelper;
-import com.example.luxeviewresort.models.Room;
+import com.example.luxeviewresort.models.BookedRoom;
 import com.example.luxeviewresort.utils.SessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 
-public class ProfileActivity extends AppCompatActivity implements RoomAdapter.OnRoomClickListener {
+public class ProfileActivity extends AppCompatActivity implements BookingsAdapter.OnBookingClickListener {
 
     private TextView tvUserName, tvUserEmail;
     private RecyclerView rvBookings;
-    private RoomAdapter roomAdapter;
+    private BookingsAdapter bookingsAdapter;
     private DatabaseHelper databaseHelper;
     private SessionManager sessionManager;
     private Button btnLogout;
@@ -49,11 +51,17 @@ public class ProfileActivity extends AppCompatActivity implements RoomAdapter.On
             tvUserName.setText(userName);
             tvUserEmail.setText(userEmail);
 
-            // Load User's Booked Rooms
-            List<Room> bookings = databaseHelper.getUserBookings(userId);
-            roomAdapter = new RoomAdapter(this, bookings, this);
-            rvBookings.setLayoutManager(new LinearLayoutManager(this));
-            rvBookings.setAdapter(roomAdapter);
+            // Load User's Booked Rooms with date and time information
+            List<BookedRoom> bookings = databaseHelper.getUserBookings(userId);
+
+            if (bookings.isEmpty()) {
+                // Handle the case when there are no bookings
+                // You could show a message or hide the RecyclerView
+            } else {
+                bookingsAdapter = new BookingsAdapter(this, bookings, this);
+                rvBookings.setLayoutManager(new LinearLayoutManager(this));
+                rvBookings.setAdapter(bookingsAdapter);
+            }
         }
 
         // Logout Button Click
@@ -79,9 +87,9 @@ public class ProfileActivity extends AppCompatActivity implements RoomAdapter.On
         });
     }
 
-    // Handle Room Clicks
+    // Handle Booking Clicks
     @Override
-    public void onRoomClick(int roomId) {
+    public void onBookingClick(int roomId) {
         Intent intent = new Intent(ProfileActivity.this, RoomDetailsActivity.class);
         intent.putExtra("room_id", roomId);
         startActivity(intent);

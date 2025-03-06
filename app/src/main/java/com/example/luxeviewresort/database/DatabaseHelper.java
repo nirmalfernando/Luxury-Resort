@@ -7,12 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.luxeviewresort.R;
+import com.example.luxeviewresort.models.BookedRoom;
 import com.example.luxeviewresort.models.Room;
 import com.example.luxeviewresort.models.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,7 +24,7 @@ import android.util.Pair;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "LuxeVista.db";
-    private static final int DATABASE_VERSION = 10; // Increment version when modifying DB schema
+    private static final int DATABASE_VERSION = 11; // Increment version when modifying DB schema
     private final Context context;
 
     // Table Names
@@ -44,7 +47,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createUserTable = "CREATE TABLE " + TABLE_USERS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT UNIQUE, password TEXT)";
         String createRoomsTable = "CREATE TABLE " + TABLE_ROOMS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, image BLOB)";
         String createServicesTable = "CREATE TABLE " + TABLE_SERVICES + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL)";
-        String createBookingsTable = "CREATE TABLE " + TABLE_BOOKINGS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, room_id INTEGER, " +
+        String createBookingsTable = "CREATE TABLE " + TABLE_BOOKINGS +
+                " (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, room_id INTEGER, " +
+                "date TEXT, time TEXT, " + // Add these two fields
                 "FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE, " +
                 "FOREIGN KEY(room_id) REFERENCES rooms(id) ON DELETE CASCADE)";
 
@@ -351,19 +356,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Get User's Booked Rooms
-    public List<Room> getUserBookings(int userId) {
-        List<Room> roomList = new ArrayList<>();
+    public List<BookedRoom> getUserBookings(int userId) {
+        List<BookedRoom> roomList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT rooms.id, rooms.name, rooms.price FROM rooms INNER JOIN bookings ON rooms.id = bookings.room_id WHERE bookings.user_id=?",
+        Cursor cursor = db.rawQuery(
+                "SELECT rooms.id, rooms.name, rooms.price, bookings.date, bookings.time " +
+                        "FROM rooms INNER JOIN bookings ON rooms.id = bookings.room_id " +
+                        "WHERE bookings.user_id=?",
                 new String[]{String.valueOf(userId)});
 
         if (cursor.moveToFirst()) {
             do {
-                roomList.add(new Room(cursor.getInt(0), cursor.getString(1), cursor.getDouble(2)));
+                int id = cursor.getInt(0);
+                String name = cursor.getString(1);
+                double price = cursor.getDouble(2);
+                String date = cursor.getString(3);
+                String time = cursor.getString(4);
+
+                // Create a BookedRoom object with the booking date and time
+                roomList.add(new BookedRoom(id, name, price, date, time));
             } while (cursor.moveToNext());
         }
         cursor.close();
         return roomList;
+    }
+
+    // Book a Room with date and time
+    public boolean bookRoom(int userId, int roomId, String date, String time) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("user_id", userId);
+        values.put("room_id", roomId);
+        values.put("date", date);
+        values.put("time", time);
+        long result = db.insert(TABLE_BOOKINGS, null, values);
+        return result != -1;
     }
 
     // Insert a Service
