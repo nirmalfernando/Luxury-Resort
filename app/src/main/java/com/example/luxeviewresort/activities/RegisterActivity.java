@@ -28,16 +28,20 @@ public class RegisterActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
 
         btnRegister.setOnClickListener(v -> {
-            String name = etName.getText().toString();
-            String email = etEmail.getText().toString();
-            String password = etPassword.getText().toString();
+            String name = etName.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
 
-            if (databaseHelper.insertUser(name, email, password)) {
-                Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                finish();
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(RegisterActivity.this, "All fields are required!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(RegisterActivity.this, "Registration Failed!", Toast.LENGTH_SHORT).show();
+                if (databaseHelper.insertUser(name, email, password)) {
+                    Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                    finish();
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Registration Failed!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
