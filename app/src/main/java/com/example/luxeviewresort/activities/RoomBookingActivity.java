@@ -34,12 +34,15 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
         toolbar = findViewById(R.id.toolbar);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
+        // Highlight the current page (Bookings)
+        bottomNavigationView.setSelectedItemId(R.id.nav_bookings);
+
         // Handle back button click
         toolbar.setNavigationOnClickListener(v -> {
             Intent intent = new Intent(RoomBookingActivity.this, HomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
-            finish(); // Optional: Close the current activity
+            finish();
         });
 
         List<Room> roomList = databaseHelper.getAllRooms2();
@@ -54,13 +57,18 @@ public class RoomBookingActivity extends AppCompatActivity implements RoomAdapte
         // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeActivity.class));
+            if (itemId == R.id.nav_bookings) {
+                // Already in RoomBookingActivity, no action needed
                 return true;
-            } else if (itemId == R.id.nav_bookings) {
+            } else if (itemId == R.id.nav_home) {
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(this, ProfileActivity.class));
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;

@@ -17,6 +17,7 @@ import com.example.luxeviewresort.models.Service;
 import com.example.luxeviewresort.utils.SessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoomClickListener, ServiceAdapter.OnServiceClickListener {
@@ -42,7 +43,7 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
         sessionManager = new SessionManager(this);
 
         int userId = sessionManager.getUserId();
-        Log.d("Home Activity UserId", "UserId: " +userId);
+        Log.d("Home Activity UserId", "UserId: " + userId);
 
         // Load Rooms
         List<Room> rooms = databaseHelper.getAllRooms2();
@@ -56,16 +57,24 @@ public class HomeActivity extends AppCompatActivity implements RoomAdapter.OnRoo
         rvServices.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvServices.setAdapter(serviceAdapter);
 
+        // Highlight the current page (Home)
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
         // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
+                // Already in HomeActivity, no action needed
                 return true;
             } else if (itemId == R.id.nav_bookings) {
-                startActivity(new Intent(this, RoomBookingActivity.class));
+                Intent intent = new Intent(this, RoomBookingActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(this, ProfileActivity.class));
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;

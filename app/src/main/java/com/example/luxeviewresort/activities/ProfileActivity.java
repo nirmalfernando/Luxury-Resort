@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.luxeviewresort.R;
 import com.example.luxeviewresort.adapters.BookingsAdapter;
 import com.example.luxeviewresort.database.DatabaseHelper;
@@ -43,6 +42,9 @@ public class ProfileActivity extends AppCompatActivity implements BookingsAdapte
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
 
+        // Highlight the current page (Profile)
+        bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+
         if (sessionManager.isLoggedIn()) {
             int userId = sessionManager.getUserId();
             String userName = sessionManager.getUserName();
@@ -56,7 +58,8 @@ public class ProfileActivity extends AppCompatActivity implements BookingsAdapte
 
             if (bookings.isEmpty()) {
                 // Handle the case when there are no bookings
-                // You could show a message or hide the RecyclerView
+                // Optionally show a message or hide the RecyclerView
+                tvUserName.setText(userName + " (No bookings)");
             } else {
                 bookingsAdapter = new BookingsAdapter(this, bookings, this);
                 rvBookings.setLayoutManager(new LinearLayoutManager(this));
@@ -67,20 +70,27 @@ public class ProfileActivity extends AppCompatActivity implements BookingsAdapte
         // Logout Button Click
         btnLogout.setOnClickListener(v -> {
             sessionManager.setLogin(false);
-            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         });
 
         // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeActivity.class));
+            if (itemId == R.id.nav_profile) {
+                // Already in ProfileActivity, no action needed
+                return true;
+            } else if (itemId == R.id.nav_home) {
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_bookings) {
-                startActivity(new Intent(this, RoomBookingActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_profile) {
+                Intent intent = new Intent(this, RoomBookingActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 return true;
             }
             return false;

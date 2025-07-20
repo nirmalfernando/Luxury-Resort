@@ -61,7 +61,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="false"
-                android:drawableEnd="@drawable/ic_calendar"/>
+                android:drawableEnd="@drawable/ic_calendar"
+                android:textColor="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Select Time -->
@@ -75,7 +76,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="false"
-                android:drawableEnd="@drawable/ic_clock"/>
+                android:drawableEnd="@drawable/ic_clock"
+                android:textColor="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Book Now Button -->
